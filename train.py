@@ -121,13 +121,13 @@ def main():
     graph = tf.Graph()
     with graph.as_default():
         with tf.name_scope('training'):
-            train_model = CharRNNLM(is_training=True, use_batch=True, **params)
+            train_model = CharRNNLM(is_training=True, infer=False, **params)
         tf.get_variable_scope().reuse_variables()
         with tf.name_scope('validation'):
-            valid_model = CharRNNLM(is_training=False, use_batch=True, **params)
+            valid_model = CharRNNLM(is_training=False, infer=False, **params)
         with tf.name_scope('evaluation'):
-            test_model = CharRNNLM(is_training=False, use_batch=True, **params)
-            saver = tf.train.Saver(name='checkpoint_saver')
+            test_model = CharRNNLM(is_training=False, infer=False, **params)
+            saver = tf.train.Saver(name='model_saver')
             best_model_saver = tf.train.Saver(name='best_model_saver')
     
     logging.info('Start training\n')
