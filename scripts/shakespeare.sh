@@ -1,1 +1,1 @@
-python ../train.py --data_file=../data/tiny_shakespeare.txt --verbose=1 --debug
+python ../train.py --data_file=../data/tiny_shakespeare.txt --dropout=0.5 --verbose=1 --debug

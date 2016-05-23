@@ -155,12 +155,13 @@ def main():
             else:
                 tf.initialize_all_variables().run()
             
+            learning_rate = args.learning_rate
             for epoch in range(args.num_epochs):
                 logging.info('=' * 19 + ' Epoch %d ' + '=' * 19 + '\n', epoch)
                 logging.info('Training on training set')
                 # training step
                 ppl, train_summary_str, global_step = train_model.run_epoch(session, train_batches, is_training=True,
-                                      verbose=args.verbose, freq=args.progress_freq)
+                                     learning_rate=learning_rate, verbose=args.verbose, freq=args.progress_freq)
                 # record the summary
                 train_writer.add_summary(train_summary_str, global_step)
                 train_writer.flush()
@@ -172,13 +173,17 @@ def main():
                 logging.info('Evaluate on validation set')
                 
                 valid_ppl, valid_summary_str, _ = valid_model.run_epoch(session, valid_batches, is_training=False,
-                                      verbose=args.verbose, freq=args.progress_freq)
+                                     learning_rate=learning_rate, verbose=args.verbose, freq=args.progress_freq)
                 
                 # save and update best model
                 if (len(best_model) == 0) or (valid_ppl < best_valid_ppl):
                     best_model = best_model_saver.save(session, args.save_best_model, 
                                                        global_step=train_model.global_step)
                     best_valid_ppl = valid_ppl
+                else:
+                    learning_rate /= 2.0
+                    logging.info('Decay the learning rate: ' + str(learning_rate))
+                
                 valid_writer.add_summary(valid_summary_str, global_step)
                 valid_writer.flush()
                 
@@ -203,7 +208,7 @@ def main():
             logging.info('Evaluate the best model on test set')
             saver.restore(session, best_model)
             test_ppl, _, _ = test_model.run_epoch(session, test_batches, is_training=False,
-                                      verbose=args.verbose, freq=args.progress_freq)
+                                     learning_rate=learning_rate, verbose=args.verbose, freq=args.progress_freq)
             result['test_ppl'] = float(test_ppl)
     finally:
         result_path = os.path.join(args.output_dir, 'result.json')

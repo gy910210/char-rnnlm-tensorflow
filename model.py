@@ -111,7 +111,8 @@ class CharRNNLM(object):
         
         self.global_step = tf.get_variable('global_step', [], initializer=tf.constant_initializer(0.0))
         
-        self.learning_rate = tf.constant(learning_rate)
+        # self.learning_rate = tf.constant(learning_rate)
+        self.learning_rate = tf.placeholder(tf.float32, [], name='learning_rate')
         
         if is_training:
             tvars = tf.trainable_variables()
@@ -120,7 +121,7 @@ class CharRNNLM(object):
             self.train_op = optimizer.apply_gradients(zip(grads, tvars), global_step=self.global_step)
     
     
-    def run_epoch(self, session, batch_generator, is_training, verbose=0, freq=10):
+    def run_epoch(self, session, batch_generator, is_training, learning_rate, verbose=0, freq=10):
         epoch_size = batch_generator.num_batches
         
         if verbose > 0:
@@ -142,12 +143,13 @@ class CharRNNLM(object):
             x, y = batch_generator.next_batch()
             
             ops = [self.average_loss, self.ppl, self.final_state, extra_op,
-                   self.summaries, self.global_step, self.learning_rate]
+                   self.summaries, self.global_step]
             
-            feed_dict = {self.input_data: x, self.targets: y, self.initial_state: state}
+            feed_dict = {self.input_data: x, self.targets: y, self.initial_state: state,
+                         self.learning_rate: learning_rate}
             
             results = session.run(ops, feed_dict)
-            average_loss, ppl, final_state, _, summary_str, global_step, lr = results
+            average_loss, ppl, final_state, _, summary_str, global_step = results
             
             if (verbose > 0) and ((step+1) % freq == 0):
                 logging.info('%.1f%%, step:%d, perplexity: %.3f, speed: %.0f words',
