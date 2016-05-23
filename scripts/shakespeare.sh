@@ -1,0 +1,1 @@
+python ../train.py --data_file=../data/tiny_shakespeare.txt --verbose=1 --debug

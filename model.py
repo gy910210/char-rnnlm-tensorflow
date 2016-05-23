@@ -57,7 +57,7 @@ class CharRNNLM(object):
         
         with tf.name_scope('initial_state'):
             self.zero_state = multi_cell.zero_state(self.batch_size, tf.float32)
-            self.inital_state = tf.placeholder(tf.float32, [self.batch_size, multi_cell.state_size], 'inital_state')
+            self.initial_state = tf.placeholder(tf.float32, [self.batch_size, multi_cell.state_size], 'initial_state')
         
         with tf.name_scope('embedding_layer'):
             if embedding_size > 0:
@@ -72,7 +72,7 @@ class CharRNNLM(object):
             # num_unrollings * (batch_size, embedding_size), the format of rnn inputs.
             sliced_inputs = [tf.squeeze(input_, [1]) for input_ in tf.split(1, self.num_unrollings, inputs)]
             
-        outputs, final_state = rnn.rnn(multi_cell, sliced_inputs, inital_state=self.inital_state)
+        outputs, final_state = rnn.rnn(multi_cell, sliced_inputs, initial_state=self.initial_state)
         self.final_state = final_state
         
         with tf.name_scope('flatten_outputs'):
@@ -120,12 +120,12 @@ class CharRNNLM(object):
             self.train_op = optimizer.apply_gradients(zip(grads, tvars), global_step=self.global_step)
     
     
-    def run_epoch(self, session, data_loader, is_training, verbose=0, freq=10):
-        epoch_size = data_loader.num_batches
+    def run_epoch(self, session, batch_generator, is_training, verbose=0, freq=10):
+        epoch_size = batch_generator.num_batches
         
         if verbose > 0:
             logging.info('epoch_size: %d', epoch_size)
-            logging.info('data_size: %d', data_loader.seq_length)
+            logging.info('data_size: %d', batch_generator.seq_length)
             logging.info('num_unrollings: %d', self.num_unrollings)
             logging.info('batch_size: %d', self.batch_size)
         
@@ -136,15 +136,15 @@ class CharRNNLM(object):
         
         state = self.zero_state.eval()
         self.reset_loss_monitor.run()
-        data_loader.reset_batch_pointer()
+        batch_generator.reset_batch_pointer()
         start_time = time.time()
         for step in range(epoch_size):
-            x, y = data_loader.next_batch()
+            x, y = batch_generator.next_batch()
             
             ops = [self.average_loss, self.ppl, self.final_state, extra_op,
                    self.summaries, self.global_step, self.learning_rate]
             
-            feed_dict = {self.input_data: x, self.targets: y, self.inital_state: state}
+            feed_dict = {self.input_data: x, self.targets: y, self.initial_state: state}
             
             results = session.run(ops, feed_dict)
             average_loss, ppl, final_state, _, summary_str, global_step, lr = results
