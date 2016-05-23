@@ -51,7 +51,7 @@ def config():
     # Parameters for gradient descent.
     parser.add_argument('--max_grad_norm', type=float, default=5.,
                         help='clip global grad norm')
-    parser.add_argument('--learning_rate', type=float, default=2e-3,
+    parser.add_argument('--learning_rate', type=float, default=5e-3,
                         help='initial learning rate')
 
     # Parameters for logging.
