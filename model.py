@@ -160,5 +160,32 @@ class CharRNNLM(object):
                      
         return ppl, summary_str, global_step
     
-    def sample_seq(self):
-        pass
+    def sample_seq(self, session, length, start_text, vocab_loader, max_prob=True):
+        state = self.zero_state.eval()
+        
+        # use start_text to warm up the RNN.
+        if start_text is not None and len(start_text) > 0:
+            seq = list(start_text)
+            for char in start_text[:-1]:
+                x = np.array([[vocab_loader.vocab_index_dict[char]]])
+                state = session.run(self.final_state, {self.input_data: x, self.initial_state: state})
+            x = np.array([[vocab_loader.vocab_index_dict[start_text[-1]]]])
+        else:
+            x = np.array([[np.random.randint(0, vocab_loader.vocab_size)]])
+            seq = []
+        
+        for i in range(length):
+            state, logits = session.run([self.final_state, self.logits],
+                                        {self.input_data: x, self.initial_state: state})
+            unnormalized_probs = np.exp(logits[0] - np.max(logits[0]))
+            probs = unnormalized_probs / np.sum(unnormalized_probs)
+            
+            if max_prob:
+                sample = np.argmax(probs)
+            else:
+                sample = np.random.choice(vocab_loader.vocab_size, 1, p=probs)[0]
+            
+            seq.append(vocab_loader.index_vocab_dict[sample])
+            x = np.array([[sample]])
+        
+        return ''.join(seq)

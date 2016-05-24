@@ -1,8 +1,7 @@
 import argparse
-import logging
 import numpy as np
 
-def config():
+def config_train():
     parser = argparse.ArgumentParser()
     
     # Data and vocabulary file
@@ -81,6 +80,36 @@ def config():
     parser.add_argument('--test', dest='test', action='store_true',
                         help=('use the first 1000 character to as data to test the implementation'))
     parser.set_defaults(test=False)
+    
+    args = parser.parse_args()
+    
+    return args
+    
+
+def config_sample():
+    parser = argparse.ArgumentParser()
+    
+    # Parameters for using saved best models.
+    parser.add_argument('--init_dir', type=str, default='',
+                        help='continue from the outputs in the given directory')
+    
+    # Parameters for sampling.
+    parser.add_argument('--max_prob', dest='max_prob', action='store_true',
+                        help='always pick the most probable next character in sampling')
+    parser.set_defaults(max_prob=False)
+    
+    parser.add_argument('--start_text', type=str,
+                        default='The meaning of life is ',
+                        help='the text to start with')
+
+    parser.add_argument('--length', type=int,
+                        default=100,
+                        help='length of sampled sequence')
+
+    parser.add_argument('--seed', type=int,
+                        default=-1,
+                        help=('seed for sampling to replicate results, '
+                              'an integer between 0 and 4294967295.'))
     
     args = parser.parse_args()
     

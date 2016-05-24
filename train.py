@@ -8,13 +8,13 @@ import sys
 import numpy as np
 import tensorflow as tf
 from model import CharRNNLM
-from config import config
+from config import config_train
 from utils import VocabularyLoader, BatchGenerator, batche2string
 
 TF_VERSION = int(tf.__version__.split('.')[1])
 
 def main():
-    args = config()
+    args = config_train()
     
     # Specifying location to store model, best model and tensorboard log.
     args.save_model = os.path.join(args.output_dir, 'save_model/model')

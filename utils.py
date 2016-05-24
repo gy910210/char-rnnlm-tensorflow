@@ -5,16 +5,12 @@ import numpy as np
 class VocabularyLoader(object):
     def load_vocab(self, vocab_file, encoding):
         with codecs.open(vocab_file, 'r', encoding=encoding) as f:
-            vocab_index_dict = json.load(f)
-        index_vocab_dict = {}
-        vocab_size = 0
-        for char, index in vocab_index_dict.iteritems():
-            index_vocab_dict[index] = char
-            vocab_size += 1
-        self.vocab_index_dict = vocab_index_dict
-        self.index_vocab_dict = index_vocab_dict
-        self.vocab_size = vocab_size
-        return vocab_index_dict, index_vocab_dict, vocab_size
+            self.vocab_index_dict = json.load(f)
+        self.index_vocab_dict = {}
+        self.vocab_size = 0
+        for char, index in self.vocab_index_dict.iteritems():
+            self.index_vocab_dict[index] = char
+            self.vocab_size += 1
         
     def create_vocab(self, text):
         unique_chars = list(set(text))

@@ -1,0 +1,1 @@
+python ../sample.py --init_dir=./output --start_text="The meaning of life is" --length=100
