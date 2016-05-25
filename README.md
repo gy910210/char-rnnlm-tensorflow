@@ -6,3 +6,6 @@ If you are not familar with RNN, you can first read my post <https://github.com/
 Inspired from Andrej Karpathy's [char-rnn](https://github.com/karpathy/char-rnn).
 
 See his article [The Unreasonable Effectiveness of Recurrent Neural Network](http://karpathy.github.io/2015/05/21/rnn-effectiveness/) to learn more about this model.
+
+## How to use?
+In the directory `scripts`, you can first run `sh shakespeare.sh` to train the model, and the run `sh sample.sh` to sample text based on the model.
